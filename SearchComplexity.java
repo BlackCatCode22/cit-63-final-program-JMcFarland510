@@ -3,44 +3,56 @@
 
 
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class SearchComplexity {
 
-    // Linear Search Method
+    // Linear Search Method with initialized iterations counter to track number of iterations it takes
+    // to find target or output not found
     public static int linearSearch(int[] array, int target) {
+        int iterations = 0; // initialized iterations counter to track
         for (int i = 0; i < array.length; i++) {
+            iterations++;
             if (array[i] == target) {
+                System.out.println("Linear search iterations: " + iterations);
                 return i;  // Returns index of found element
             }
         }
+        System.out.println("Linear search iterations: " + iterations);
         return -1;  // Target not found
     }
 
-    // Binary Search Method
-    public static int binarySearch(int[] array, int target) {
-        int left = 0;
-        int right = array.length - 1;
-        int iterations = 0;
-
-        while (left <= right) {
+    // Recursive binary Search Method
+    public static int recursiveBinarySearch(int[] array, int target, int left, int right, int iterations) {
+        if (left <= right) {
             int mid = left + (right - left) / 2;
             iterations++;
-
             if (array[mid] == target) {
-                System.out.println("Binary search iterations: " + iterations);
+                System.out.println("recursive binary search iterations: " + iterations);
                 return mid;
             }
-
             if (array[mid] < target) {
-                left = mid + 1;
+                return recursiveBinarySearch(array, target, mid + 1, right, iterations);
             } else {
-                right = mid - 1;
+                return recursiveBinarySearch(array, target, left, mid - 1, iterations);
             }
         }
+        System.out.println("Recursive binary search iterations: " + iterations);
+        return -1; // target not found
+    }
 
-        System.out.println("Binary search iterations: " + iterations);
-        return -1;  // Target not found
+    // Error handling for non-integer Inputs with added getInput method for non integer inputs using a
+    // try catch block
+    public static int getInput(Scanner scanner) {
+        while (true) {
+            try {
+                return scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter an integer");
+                scanner.nextInt(); // Clears the invalid input
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -55,21 +67,32 @@ public class SearchComplexity {
         }
 
         System.out.println("Enter target number to search:");
-        int target = scanner.nextInt();
+        int target = getInput(scanner);
 
-        // Linear Search
+        // Linear Search with iteration count measure and print time taken for both linear and binary search
+        // methods to execute. Help compare the performance of both algorithms
+
+        long startTimeLinear = System.nanoTime();
         int linearResult = linearSearch(array, target);
+        long endTimeLinear = System.nanoTime();
+        long linearTime = endTimeLinear - startTimeLinear;
         System.out.println((linearResult == -1) ? "Target not found by linear search." :
                 "Target found by linear search at index: " + linearResult);
 
-        // Binary Search (Array must be sorted)
+        // Binary Search with iteration count
         Arrays.sort(array);
-        int binaryResult = binarySearch(array, target);
+        long startTimeBinary = System.nanoTime();
+        int binaryResult = recursiveBinarySearch(array, target, 0, array.length - 1, 0);
+        long endTimeBinary = System.nanoTime();
+        long binaryTime = endTimeBinary - startTimeBinary;
         System.out.println((binaryResult == -1) ? "Target not found by binary search." :
                 "Target found by binary search at index: " + binaryResult);
+
+        System.out.println("Time taken for linear search: " + linearTime + "nanoseconds");
+        System.out.println("Time taken for binary search: " + binaryTime + "nanoseconds");
+
 
         scanner.close();
     }
 }
-
 
